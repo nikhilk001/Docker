@@ -1,0 +1,16 @@
+publishing ports is necessary to make the content available in all the containers 
+
+created 3 containers one as manager and 2 as worker nodes.
+
+docker service create --name mywebserver --replicas 2 --publish 8080:80 nginx
+
+created this service 
+if i hadnt published that port curl would not have worked
+
+but now as the port has been published i just need to get the ip of ifconfig eth0 and curl it with port id
+
+curl 143.198.50.179:8080
+
+you can access the nginx server this way
+
+this curl will work on other nodes as well and you can acess the content
