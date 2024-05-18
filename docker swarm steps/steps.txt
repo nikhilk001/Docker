@@ -40,7 +40,7 @@ Then initialise one node as manager node
 Do ifconfig in that node and get it Ip of eth0 
 
 Ifconfig eth0
-Docker swarm init —advertise-add IP
+Docker swarm init —advertise-addr IP
 
 Copy the command which is returned in the output to create the worker node and run that command in worker node
 
