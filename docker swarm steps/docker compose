@@ -1,3 +1,5 @@
+##################################### DOCKER COMPOSE OVERVIEW ####################################################
+
 docker compose needs to be explicitly installed in linux
 
 curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
@@ -35,8 +37,99 @@ after the application is up you can try
 ifconfig eth0
 curl 143.198.50.179:8080
 
+##################################### DEPLOYING MULTISERVICE APPLICATION ####################################################
+
+docker stack deploy --compose-file docker-compose.yml mydemo
+docker stack ps mydemo
+docker stack rm mydemo
+
+by using stack you can deploy your application in multi container in multi node fashion
+
+
+#################################### LOCK SWARM CLUSTER #####################################################
+
+
+docker node ls
+cd var/lib/docker/swarm/certificates
+cat swarm-node.key
+
+you can see the private key there which can be used by attacker 
+to avooid that docker advices to use docker lock
+
+docker swarm update --autolock=true
+
+Swarm updated.
+To unlock a swarm manager after it restarts, run the `docker swarm unlock`
+command and provide the following key:
+
+    [KEY]
+
+Save the returned key as it is important
+
+systemctl restart docker
+systemctl status docker
+docker node ls
+Error response from daemon: Swarm is encrypted and needs to be unlocked before it can be used. Please use "docker swarm unlock" to unlock it.
+
+
+docker swarm unlock
+[then give the key]
+
+docker node ls
+
+docker swarm unlock-key : to retrive the key
+docker swarm unlock-key --rotate : to rotate the key
+
+####################################### TROUBLE SHOOTING DEPLOYMENT ##################################################
+
+docker service ls
+docker service ps [service name]
+if you see any service to be in the pending state then
+docker inspect [ID]
+youll see the error in the status
+
+####################################### MOUNTING VOLUMES VIA SWARM ##################################################
+
+docker service create --name myservice --mount type=volume,source=myvolume,target=/mypath nginx
+docker service ps myservice
+
+log in to the node the service is running in
+
+docker volume ls
+[local     myvolume]
+volume with our given name is created 
+
+now log in to the container and go to that path
+
+docker container exec -it 76f0c075f5b6 bash
+ls -l
+
+now if you see there will be a directory named mypath there 
+go to that directory and create and text file temp.txt
+and then exit
+
+cd mypyth
+touch temp.txt
+exit
+
+docker volume ls
+youll get the source of the volume
+
+cd /var/lib/docker/volumes/myvolume/_data
+ls -l
+
+youll see the temp.txt mounted
 
 
 
+####################################### CONTROL SERVICE PLACEMENT ##################################################
 
-
+docker node ls
+adding a label on one of the node
+docker node update --label-add region=mumbai [node id]
+to check if label is added or not
+docker node inspect [node id]
+docker service create myservice --replicas 3 --constraint node.labels.region==mumbai nginx
+now if you do 
+docker service ps myservice
+all the 3 replicas are created int he node with passed id
