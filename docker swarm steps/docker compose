@@ -133,3 +133,21 @@ docker service create myservice --replicas 3 --constraint node.labels.region==mu
 now if you do 
 docker service ps myservice
 all the 3 replicas are created int he node with passed id
+
+
+####################################### OVERLAY NETWORK ##################################################
+
+docker network create --driver overlay mynetwork
+This will create network in manager and worker nodes
+docker network ls
+docker service create --name myservice --network mynetwork --replicas 3 nginx
+
+now check the ip of the container running
+docker container ls
+docker container inspect [id]
+
+copy the ip
+then go to different node and log into its container ping the ip
+docker cotainer exec -it [container name] bash
+apt-get update && apt-get install iputils-ping
+ping [ip] -c 5
