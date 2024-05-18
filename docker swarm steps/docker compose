@@ -1,0 +1,42 @@
+docker compose needs to be explicitly installed in linux
+
+curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+
+chmod +x /usr/local/bin/docker-compose
+
+then create a yml file
+
+mkdir dockercompose
+cd dockercompose
+yum -y install vim
+vim docker-compose.yml
+
+#within this file youll define what are the services you require
+
+services:
+  webserver:
+    image: nginx
+    ports:
+      - 8080:80/tcp
+  database:
+    image: redis
+
+then save the file and run 
+docker-compose config
+
+if file format is correct it will read the file or throw an error.
+
+docker-compose up -d : to run
+docker-compose down : to stop
+
+
+Bonus:
+after the application is up you can try
+ifconfig eth0
+curl 143.198.50.179:8080
+
+
+
+
+
+
