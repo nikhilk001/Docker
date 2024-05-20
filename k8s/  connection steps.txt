@@ -1,0 +1,105 @@
+create k8s cluster in digitalocean and download its configuration file
+
+go to k8s folder and create a k8s.kubeconfig file and paste the contents of downloaded configuration file into it
+
+kubectl --kubeconfig "k8s.kubeconfig" get nodes
+
+everytime adding --kubeconfig flag is a tedius task instead create a .kube folder in you pwd
+
+mkdir .kube
+cd .kube
+vim config
+
+paste the conten of k8s.kubeconfig
+
+
+###################################################### CREATING POD #############################################################
+
+docker run --name mywebserver nginx
+kubectl --kubeconfig "k8s.kubeconfig" get nodes 
+kubectl --kubeconfig "k8s.kubeconfig" run mywebserver --image=nginx
+kubectl --kubeconfig "k8s.kubeconfig" exec -it mywebserver -- bash
+this bash command will run inside your pod
+you can give any command after --
+kubectl --kubeconfig "k8s.kubeconfig" exec -it mywebserver -- ls -lrt
+kubectl --kubeconfig "k8s.kubeconfig" delete pod mywebserver 
+
+###################################################### CREATING OBJECT #############################################################
+
+create a pod.yaml 
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mywebserver
+  labels:
+    name: mywebserver
+spec:
+  containers:
+  - name: mywebserver
+    image: nginx
+
+kubectl --kubeconfig "k8s.kubeconfig" apply -f pod.yaml
+kubectl --kubeconfig "k8s.kubeconfig" get nodes
+kubectl --kubeconfig "k8s.kubeconfig" delete pods --all
+kubectl --kubeconfig "k8s.kubeconfig" drain [node name]
+
+###################################################### CREATING POD USING YAML #############################################################
+
+apiVersion : version of api
+kind : kind of object you want ot create
+meta data name : name fo the object that uniquely identified it
+spec : desired state of the object
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginxwebserver
+spec:
+  containers:
+  - name: democontainer
+    image: nginx
+
+kubectl --kubeconfig "k8s.kubeconfig" apply -f newpod.yaml
+kubectl --kubeconfig "k8s.kubeconfig" delete -f newpod.yaml
+
+###################################################### LABELS & SELECTORS #############################################################
+
+kubectl --kubeconfig "k8s.kubeconfig" label pod pod1 env=dev
+kubectl --kubeconfig "k8s.kubeconfig" get pods -l env=dev
+kubectl --kubeconfig "k8s.kubeconfig" get pods --show-labels
+kubectl --kubeconfig "k8s.kubeconfig" get pods -l env!=dev
+kubectl --kubeconfig "k8s.kubeconfig" label pod pod1 env- : this will remove th env tag
+kubectl --kubeconfig "k8s.kubeconfig" label pods --all status=running : this will add this tag to all the pods
+
+###################################################### REPLICASET #############################################################
+
+create replicaset.yaml
+took this from k8s documentation
+
+apiVersion: apps/v1
+kind: ReplicaSet
+metadata:
+  name: nikhil-replicaset
+spec:
+  # modify replicas according to your case
+  replicas: 5
+  selector:
+    matchLabels:
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        tier: frontend
+    spec:
+      containers:
+      - name: php-redis
+        image: us-docker.pkg.dev/google-samples/containers/gke/gb-frontend:v5
+
+
+kubectl --kubeconfig "k8s.kubeconfig" apply -f replicaset.yaml
+kubectl --kubeconfig "k8s.kubeconfig" get replicaset          
+kubectl --kubeconfig "k8s.kubeconfig" get pods
+kubectl --kubeconfig "k8s.kubeconfig" delete pod nikhil-replicaset-4nlgf
+kubectl --kubeconfig "k8s.kubeconfig" get pods
+kubectl --kubeconfig "k8s.kubeconfig" delete rs nikhil-replicaset
