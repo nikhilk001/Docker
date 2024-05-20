@@ -151,3 +151,34 @@ then go to different node and log into its container ping the ip
 docker cotainer exec -it [container name] bash
 apt-get update && apt-get install iputils-ping
 ping [ip] -c 5
+
+####################################### SWARM SERVICE USING TEMPLATE ##################################################
+
+docker service create --name nginxservice --hostname="{{.Node.Hostname}}-{{.Service.name}}" nginx
+docker ps
+hostname
+docker container exec -it [id] bash
+hostname
+
+####################################### SWARM MANAGER HA ##################################################
+
+docker swarm join-token manager 
+run this command to get the token
+then run 
+docker swarm join-token manager 
+to get the token which can be used to run in different node to add it as manager in the cluster
+Now we have 2 managers in the cluster
+then we will stop docker in node 1 to emulate the down scenario
+
+systemctl stop docker
+
+Now if you check node in node 2 youll get following error
+docker node ls
+Error response from daemon: rpc error: code = DeadlineExceeded desc = context deadline exceeded
+Error response from daemon: rpc error: code = Unknown desc = The swarm does not have a leader. It's possible that too few managers are online. Make sure more than half of the managers are online
+
+####################################### MANAGER ONLY NODE IN SWARM ##################################################
+
+first drain the manager node to tranfer any running cluter on the worker node
+
+docker node update --availability drain [node id]
