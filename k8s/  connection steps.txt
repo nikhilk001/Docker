@@ -13,7 +13,7 @@ vim config
 paste the conten of k8s.kubeconfig
 
 
-###################################################### CREATING POD #############################################################
+################################ CREATING POD ###################################
 
 docker run --name mywebserver nginx
 kubectl --kubeconfig "k8s.kubeconfig" get nodes 
@@ -24,7 +24,7 @@ you can give any command after --
 kubectl --kubeconfig "k8s.kubeconfig" exec -it mywebserver -- ls -lrt
 kubectl --kubeconfig "k8s.kubeconfig" delete pod mywebserver 
 
-###################################################### CREATING OBJECT #############################################################
+################################ CREATING OBJECT ################################
 
 create a pod.yaml 
 
@@ -44,7 +44,7 @@ kubectl --kubeconfig "k8s.kubeconfig" get nodes
 kubectl --kubeconfig "k8s.kubeconfig" delete pods --all
 kubectl --kubeconfig "k8s.kubeconfig" drain [node name]
 
-###################################################### CREATING POD USING YAML #############################################################
+################################ CREATING POD USING YAML ################################
 
 apiVersion : version of api
 kind : kind of object you want ot create
@@ -63,7 +63,7 @@ spec:
 kubectl --kubeconfig "k8s.kubeconfig" apply -f newpod.yaml
 kubectl --kubeconfig "k8s.kubeconfig" delete -f newpod.yaml
 
-###################################################### LABELS & SELECTORS #############################################################
+################################ LABELS & SELECTORS ################################
 
 kubectl --kubeconfig "k8s.kubeconfig" label pod pod1 env=dev
 kubectl --kubeconfig "k8s.kubeconfig" get pods -l env=dev
@@ -72,7 +72,7 @@ kubectl --kubeconfig "k8s.kubeconfig" get pods -l env!=dev
 kubectl --kubeconfig "k8s.kubeconfig" label pod pod1 env- : this will remove th env tag
 kubectl --kubeconfig "k8s.kubeconfig" label pods --all status=running : this will add this tag to all the pods
 
-###################################################### REPLICASET #############################################################
+################################ REPLICASET ################################
 
 create replicaset.yaml
 took this from k8s documentation
@@ -103,3 +103,10 @@ kubectl --kubeconfig "k8s.kubeconfig" get pods
 kubectl --kubeconfig "k8s.kubeconfig" delete pod nikhil-replicaset-4nlgf
 kubectl --kubeconfig "k8s.kubeconfig" get pods
 kubectl --kubeconfig "k8s.kubeconfig" delete rs nikhil-replicaset
+
+
+################################ CREATE DEPLOYMENT ################################
+
+kubectl --kubeconfig "k8s.kubeconfig" apply -f deployments.yaml
+kubectl --kubeconfig "k8s.kubeconfig" get replicasets
+kubectl --kubeconfig "k8s.kubeconfig" describe deployments nikhil-deployment
