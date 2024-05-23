@@ -110,3 +110,78 @@ kubectl --kubeconfig "k8s.kubeconfig" delete rs nikhil-replicaset
 kubectl --kubeconfig "k8s.kubeconfig" apply -f deployments.yaml
 kubectl --kubeconfig "k8s.kubeconfig" get replicasets
 kubectl --kubeconfig "k8s.kubeconfig" describe deployments nikhil-deployment
+
+################################ K8S SECRET ###################################
+
+kubectl --kubeconfig "k8s.kubeconfig" get generic firstsecret --from-literal=dbpass=mypassword
+kubectl --kubeconfig "k8s.kubeconfig" get secret
+kubectl --kubeconfig "k8s.kubeconfig" describe secret firstsecret -o yaml
+
+the secret is given in base64 encrypted format to decrypte it use
+echo secret | base64 -d 
+
+kubectl --kubeconfig "k8s.kubeconfig" create secret generic secondsecret --from-frile=../credentails.txt
+kubectl --kubeconfig "k8s.kubeconfig" get secret
+
+################################ MOUNTING SECRET IN POD ###################################
+
+1. Using volumes
+
+
+kubectl --kubeconfig "k8s.kubeconfig" get secret
+kubectl --kubeconfig "k8s.kubeconfig" get secret firstsecret -o yaml
+copy the secret and into the file
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secretmount
+  labels:
+    name: secretmount
+spec:
+  containers:
+  - name: secretmount
+    image: nginx
+    volumeMounts:
+    - name: foo
+      mountPath: "/etc/foo"
+      readOnly: true
+  volumeMounts:
+  - name: foo
+    secret: 
+      secretName: firstsecret
+
+kubectl --kubeconfig "k8s.kubeconfig" apply -f secretpod.yaml
+kubectl --kubeconfig "k8s.kubeconfig" get pods
+kubectl --kubeconfig "k8s.kubeconfig" exec -it secretmount bash
+cd /ect/foo
+ls
+cat dbpass
+
+
+2. Using environment variables
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: secretmount
+  labels:
+    name: secretmount
+spec:
+  containers:
+  - name: secretmount
+    image: nginx
+    env:
+      - name: SECRET_USERNAME
+        valueFrom:
+          secretKeyRef:
+            name: firstsecret
+            key: dbpass
+  restartPolicy: Never
+
+
+kubectl --kubeconfig "k8s.kubeconfig" apply -f secret-env.yaml
+kubectl --kubeconfig "k8s.kubeconfig" get pod
+kubectl --kubeconfig "k8s.kubeconfig" exec -it podname bash
+echo $SECRET_USERNAME
+    
